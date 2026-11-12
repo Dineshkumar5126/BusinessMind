@@ -1,0 +1,63 @@
+# ==========================================
+# BusinessMind .gitignore
+# ==========================================
+
+# 1. Environment Variables & Secret Credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.p12
+
+# 2. Python Bytecode, Caching & Testing Artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# 3. Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# 4. IDEs, Editors, OS & Temporary Backup Files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+desktop.ini
+*.bak
+scratch/
+
+# 5. Machine Learning Models
+# Exclude models exceeding GitHub 100MB limit
+models/saved_models/random_forest.joblib
+
+# Explicitly KEEP models required for deployment & prediction
+!models/saved_models/xgboost.joblib
+!models/saved_models/linear_regression.joblib
+
+# 6. Heavy Raw & Intermediate Datasets (>100MB or easily regenerable)
+# train_fe.csv is 120.26 MB (exceeds GitHub limit)
+data/processed/train_fe.csv
+data/processed/rossmann_clean.csv
+data/processed/test_predictions.csv
+data/raw/train.csv
+
+# Keep essential metadata and lightweight lags required for production
+!data/raw/store.csv
+!data/processed/store_lags.csv
+

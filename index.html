@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusinessMind | Retail Sales Prediction & Analytics</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="frontend/css/style.css">
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="brand">
+            <div class="brand-title">
+                <i class="fas fa-chart-line"></i> <span>BusinessMind</span>
+            </div>
+            <div class="brand-subtitle">Retail Analytics Platform</div>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="#prediction-engine" class="active"><i class="fas fa-calculator"></i> <span>Prediction Engine</span></a></li>
+            <li class="nav-item"><a href="#what-if-analysis"><i class="fas fa-sliders-h"></i> <span>What-If Analysis</span></a></li>
+            <li class="nav-item"><a href="#model-evaluation"><i class="fas fa-clipboard-check"></i> <span>Model Evaluation</span></a></li>
+            <li class="nav-item"><a href="#historical-trends"><i class="fas fa-history"></i> <span>Historical Trends</span></a></li>
+            <li class="nav-item"><a href="#model-comparison"><i class="fas fa-balance-scale"></i> <span>Model Comparison</span></a></li>
+            <li class="nav-item"><a href="#market-intelligence"><i class="fas fa-globe"></i> <span>Market Intelligence</span></a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-header">
+            <div class="header-titles">
+                <h1>Retail Sales Prediction & Analysis</h1>
+                <p>Enterprise forecasting with gradient-boosted decision trees (XGBoost)</p>
+                <div class="status-indicator connecting" id="status-indicator">
+                    <span class="status-dot connecting" id="status-dot"></span> <span id="status-text">Connecting to ML API...</span>
+                </div>
+            </div>
+            <div class="header-controls">
+                <button id="theme-toggle" class="btn-icon" aria-label="Toggle Theme">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- KPI Summary Row -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-title">Production Model</div>
+                <div class="kpi-value" id="kpi-model">XGBoost</div>
+                <div class="kpi-desc">Lowest RMSE & Highest R²</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">R² Score</div>
+                <div class="kpi-value" id="kpi-r2">0.8999</div>
+                <div class="kpi-desc">Variance Explained (0 to 1)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">RMSE ($)</div>
+                <div class="kpi-value" id="kpi-rmse">963.28</div>
+                <div class="kpi-desc">Root Mean Squared Error</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Holdout Test Records</div>
+                <div class="kpi-value" id="kpi-records">41,396</div>
+                <div class="kpi-desc">Final 6 weeks unseen data</div>
+            </div>
+        </div>
+
+        <!-- Prediction Engine Section -->
+        <section id="prediction-engine" class="dashboard-grid">
+            <div class="section-header">
+                <h2>Prediction Engine</h2>
+                <p>Generate point-in-time daily sales revenue forecasts using the trained XGBoost model.</p>
+            </div>
+            
+            <!-- Input Form -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-sliders-h"></i> Operational Parameters
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="date">Target Date</label>
+                        <input type="date" id="date" value="2015-07-20">
+                    </div>
+                    <div class="form-group">
+                        <label for="store-id">Store ID (1 – 1,115)</label>
+                        <input type="number" id="store-id" value="1" min="1" max="1115">
+                    </div>
+                    <div class="form-group">
+                        <label for="promo">Promotion Active?</label>
+                        <select id="promo">
+                            <option value="1">Yes (Active Promotion)</option>
+                            <option value="0">No (Standard Pricing)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="holiday">State Holiday</label>
+                        <select id="holiday">
+                            <option value="None">None</option>
+                            <option value="PublicHoliday">Public Holiday</option>
+                            <option value="EasterHoliday">Easter Holiday</option>
+                            <option value="Christmas">Christmas</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="school-holiday">School Holiday Active?</label>
+                        <select id="school-holiday">
+                            <option value="0">No (Regular School Day)</option>
+                            <option value="1">Yes (School Holiday)</option>
+                        </select>
+                    </div>
+                    <button id="predict-btn" class="btn-primary full-width">
+                        <i class="fas fa-calculator"></i> Predict Sales
+                    </button>
+                </div>
+            </div>
+
+            <!-- Prediction Result -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-bullseye"></i> Forecast Output (XGBoost)
+                </div>
+                <div class="prediction-result" id="prediction-result">
+                    <div class="prediction-label">Estimated Daily Revenue</div>
+                    <div class="prediction-value" id="prediction-value">--</div>
+                    <p class="prediction-note">Calculated using 28-feature pipeline, store lag metrics, and calendar inputs.</p>
+                </div>
+                <p class="prediction-subnote">
+                    <em>Real-time inference generated via Flask REST API.</em>
+                </p>
+                <button id="ask-ai-btn" class="btn-purple full-width" style="display: none;">
+                    <i class="fas fa-file-alt"></i> Generate Business Summary
+                </button>
+            </div>
+            
+            <!-- AI Insights Full Width Section -->
+            <div id="ai-insight-box" class="card section-full ai-insight-card" style="display: none;">
+                <div class="card-header-flex">
+                    <div>
+                        <div class="card-title">
+                            <i class="fas fa-chart-pie"></i> Executive Business Insights
+                        </div>
+                        <p class="card-subtitle">Strategic managerial interpretation of sales forecast and operational drivers</p>
+                    </div>
+                    <div id="ai-provenance" class="ai-provenance"></div>
+                </div>
+                <div id="ai-insight-content" class="ai-report-grid"></div>
+            </div>
+        </section>
+
+        <!-- Smart What-If Sales Analysis Section -->
+        <section id="what-if-analysis" class="dashboard-grid">
+            <div class="section-header">
+                <h2>Smart What-If Sales Analysis</h2>
+                <p>Simulate and compare two retail business scenarios side-by-side using the trained XGBoost model.</p>
+            </div>
+
+            <!-- Shared Context: Store & Date -->
+            <div class="card section-full">
+                <div class="card-title">
+                    <i class="fas fa-calendar-alt"></i> Simulation Context
+                </div>
+                <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+                    <div class="form-group">
+                        <label for="whatif-store-id">Store ID</label>
+                        <input type="number" id="whatif-store-id" value="1" min="1" max="1115">
+                    </div>
+                    <div class="form-group">
+                        <label for="whatif-date">Target Date</label>
+                        <input type="date" id="whatif-date" value="2015-07-20">
+                    </div>
+                    <div class="form-group" style="display: flex; justify-content: flex-end;">
+                        <button id="run-whatif-btn" class="btn-primary" style="margin-top: 1.5rem; width: 100%;">
+                            <i class="fas fa-play"></i> Run Scenario Comparison
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scenario A: Baseline -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-bookmark"></i> Baseline Scenario (A)
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="whatif-promo-a">Promotion</label>
+                        <select id="whatif-promo-a">
+                            <option value="0" selected>No (Standard)</option>
+                            <option value="1">Yes (Active Promo)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="whatif-holiday-a">State Holiday</label>
+                        <select id="whatif-holiday-a">
+                            <option value="None" selected>None</option>
+                            <option value="PublicHoliday">Public Holiday</option>
+                            <option value="EasterHoliday">Easter Holiday</option>
+                            <option value="Christmas">Christmas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="whatif-school-a">School Holiday</label>
+                        <select id="whatif-school-a">
+                            <option value="0" selected>No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="whatif-comp-a">Comp. Distance (m)</label>
+                        <input type="number" id="whatif-comp-a" placeholder="Default (Store Meta)" min="10">
+                    </div>
+                </div>
+                <div class="whatif-subresult" id="whatif-result-a">
+                    <span class="subresult-label">Baseline Forecast:</span>
+                    <span class="subresult-val" id="whatif-val-a">--</span>
+                </div>
+            </div>
+
+            <!-- Scenario B: Simulated -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-bolt"></i> Simulated Scenario (B)
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="whatif-promo-b">Promotion</label>
+                        <select id="whatif-promo-b">
+                            <option value="1" selected>Yes (Active Promo)</option>
+                            <option value="0">No (Standard)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="whatif-holiday-b">State Holiday</label>
+                        <select id="whatif-holiday-b">
+                            <option value="None" selected>None</option>
+                            <option value="PublicHoliday">Public Holiday</option>
+                            <option value="EasterHoliday">Easter Holiday</option>
+                            <option value="Christmas">Christmas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="whatif-school-b">School Holiday</label>
+                        <select id="whatif-school-b">
+                            <option value="0" selected>No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="whatif-comp-b">Comp. Distance (m)</label>
+                        <input type="number" id="whatif-comp-b" placeholder="Default (Store Meta)" min="10">
+                    </div>
+                </div>
+                <div class="whatif-subresult" id="whatif-result-b">
+                    <span class="subresult-label">Simulated Forecast:</span>
+                    <span class="subresult-val" id="whatif-val-b">--</span>
+                </div>
+            </div>
+
+            <!-- Comparison Delta Card -->
+            <div class="card section-full" id="whatif-comparison-card" style="display: none;">
+                <div class="card-title">
+                    <i class="fas fa-balance-scale-right"></i> Scenario Sensitivity Analysis
+                </div>
+                <div class="comparison-grid">
+                    <div class="comparison-stat">
+                        <div class="comp-stat-title">Baseline Forecast (A)</div>
+                        <div class="comp-stat-val" id="comp-base-val">--</div>
+                    </div>
+                    <div class="comparison-stat">
+                        <div class="comp-stat-title">Simulated Forecast (B)</div>
+                        <div class="comp-stat-val" id="comp-sim-val">--</div>
+                    </div>
+                    <div class="comparison-stat">
+                        <div class="comp-stat-title">Absolute Projected Delta</div>
+                        <div class="comp-stat-val" id="comp-delta-abs">--</div>
+                    </div>
+                    <div class="comparison-stat">
+                        <div class="comp-stat-title">Projected Revenue Lift</div>
+                        <div class="comp-stat-val" id="comp-delta-pct">--</div>
+                    </div>
+                </div>
+                
+                <div class="kpi-title" style="margin-top: 1.25rem; margin-bottom: 0.35rem;">Forecast Share (B vs A)</div>
+                <div class="sensitivity-bar-container">
+                    <div class="sensitivity-bar" id="sensitivity-bar" style="width: 50%;"></div>
+                </div>
+
+                <p class="whatif-note">
+                    <i class="fas fa-info-circle"></i>
+                    <span><strong>Model-based scenario estimate:</strong> This comparison reflects the mathematical sensitivity of the trained XGBoost model under altered input parameters as an operational decision-support heuristic, not a guaranteed causal outcome.</span>
+                </p>
+            </div>
+        </section>
+
+        <!-- Model Evaluation Section -->
+        <section id="model-evaluation" class="dashboard-grid">
+            <div class="section-header">
+                <h2>Model Evaluation</h2>
+                <p>Performance benchmark on unseen chronological holdout data (41,396 records).</p>
+            </div>
+            <div class="card section-full">
+                <div class="card-title">
+                    <i class="fas fa-clipboard-check"></i> Benchmark Evaluation Metrics
+                </div>
+                <p class="card-subtitle" style="margin-bottom: 1.25rem;">Evaluated on the final 6 weeks of holdout test data. Models were trained and evaluated on identical feature representations.</p>
+                
+                <table class="metrics-table">
+                    <thead>
+                        <tr>
+                            <th>Model Algorithm</th>
+                            <th>MAE (Error Margin $)</th>
+                            <th>RMSE (Large Error Penalty $)</th>
+                            <th>R² (Variance Explained)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="metrics-table-body">
+                        <tr>
+                            <td>Linear Regression (Baseline)</td>
+                            <td id="lr-mae">1,071.20</td>
+                            <td id="lr-rmse">1,505.63</td>
+                            <td id="lr-r2">0.7553</td>
+                        </tr>
+                        <tr>
+                            <td>Random Forest Regressor</td>
+                            <td class="best-metric" id="rf-mae">664.02</td>
+                            <td id="rf-rmse">973.96</td>
+                            <td id="rf-r2">0.8976</td>
+                        </tr>
+                        <tr class="selected-model-row">
+                            <td><strong>XGBoost Regressor</strong> <span class="model-badge-selected">Selected</span></td>
+                            <td id="xgb-mae">670.96</td>
+                            <td class="best-metric" id="xgb-rmse">963.28</td>
+                            <td class="best-metric" id="xgb-r2">0.8999</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="metrics-note">
+                    <i class="fas fa-info-circle"></i> <strong>Metric Definitions:</strong> 
+                    <strong>R²</strong> measures the proportion of variance explained by the model on a 0 to 1 scale (1.0 = perfect fit). 
+                    <strong>MAE</strong> indicates average absolute prediction deviation in dollars ($). 
+                    <strong>RMSE</strong> penalizes larger outlier errors more heavily.
+                </p>
+            </div>
+        </section>
+
+        <!-- Historical Trends Section -->
+        <section id="historical-trends" class="dashboard-grid">
+            <div class="section-header">
+                <h2>Historical Trends</h2>
+                <p>Model predictions versus actual historical sales on unseen chronological test data.</p>
+            </div>
+            <div class="card section-full">
+                <div class="card-title">
+                    <i class="fas fa-chart-area"></i> Actual vs Predicted Daily Sales (XGBoost)
+                </div>
+                <div class="chart-container">
+                    <img src="reports/figures/actual_vs_predicted_xgb.png" alt="Actual vs Predicted Sales" class="chart-img">
+                </div>
+                <p class="chart-figure-caption">Figure 1: Chronological comparison of actual sales versus XGBoost predictions across the holdout test evaluation window.</p>
+            </div>
+        </section>
+
+        <!-- Model Comparison Section -->
+        <section id="model-comparison" class="dashboard-grid">
+            <div class="section-header">
+                <h2>Model Comparison & Diagnostics</h2>
+                <p>Comparative model performance analysis and residual error distributions.</p>
+            </div>
+            <div class="card section-full">
+                <div class="card-title">
+                    <i class="fas fa-chart-bar"></i> Multi-Model Metric Comparison
+                </div>
+                <div class="chart-container">
+                    <img src="reports/figures/model_comparison.png" alt="Model Comparison Metrics" class="chart-img">
+                </div>
+                <p class="chart-figure-caption">Figure 2: Performance comparison across Linear Regression, Random Forest, and XGBoost on test holdout data.</p>
+            </div>
+            
+            <div class="card section-full">
+                <div class="card-title">
+                    <i class="fas fa-wave-square"></i> XGBoost Residual Error Distribution
+                </div>
+                <div class="chart-container">
+                    <img src="reports/figures/residuals_xgb.png" alt="Residuals Distribution" class="chart-img" style="max-width: 800px; display: block; margin: 0 auto;">
+                </div>
+                <p class="chart-figure-caption">Figure 3: Residual error distribution for the final XGBoost model, exhibiting a near-zero mean with symmetric spread.</p>
+            </div>
+        </section>
+
+        <!-- Market Intelligence Section -->
+        <section id="market-intelligence" class="dashboard-grid">
+            <div class="section-header">
+                <h2>Market Intelligence</h2>
+                <p>External retail intelligence powered by real-time search APIs and simulated benchmarks.</p>
+            </div>
+
+            <div class="card section-full" style="padding: 1.75rem;">
+                <!-- Tab Navigation -->
+                <div class="tab-nav">
+                    <button class="tab-btn active" data-tab="tab-competitor"><i class="fas fa-store-alt"></i> Competitor Analysis</button>
+                    <button class="tab-btn" data-tab="tab-keyword"><i class="fas fa-search-dollar"></i> Keyword & Demand</button>
+                    <button class="tab-btn" data-tab="tab-trend"><i class="fas fa-chart-line"></i> Trend Discovery</button>
+                </div>
+
+                <!-- Tab 1: Competitor Analysis -->
+                <div class="tab-pane active" id="tab-competitor">
+                    <div class="search-form-row">
+                        <div class="form-group flex-1">
+                            <label for="competitor-input">Competitor Name or Retail Brand</label>
+                            <input type="text" id="competitor-input" placeholder="e.g. Walmart, Aldi, Carrefour, Tesco" value="Aldi">
+                        </div>
+                        <button id="search-competitor-btn" class="btn-primary" style="margin-top: 1.5rem; width: auto; min-width: 180px;">
+                            <i class="fas fa-search"></i> Analyze Competitor
+                        </button>
+                    </div>
+                    <div id="competitor-results" class="market-results-container">
+                        <p class="market-empty-text">Enter a competitor brand above and click Analyze to view retail intelligence.</p>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Keyword Research -->
+                <div class="tab-pane" id="tab-keyword">
+                    <div class="search-form-row">
+                        <div class="form-group flex-1">
+                            <label for="keyword-input">Retail Product or Category Keyword</label>
+                            <input type="text" id="keyword-input" placeholder="e.g. organic cosmetics, daily essentials, seasonal discounts" value="organic cosmetics">
+                        </div>
+                        <button id="search-keyword-btn" class="btn-primary" style="margin-top: 1.5rem; width: auto; min-width: 180px;">
+                            <i class="fas fa-search"></i> Research Keywords
+                        </button>
+                    </div>
+                    <div id="keyword-results" class="market-results-container">
+                        <p class="market-empty-text">Enter a retail keyword above to view consumer search patterns and related topics.</p>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Trend Discovery -->
+                <div class="tab-pane" id="tab-trend">
+                    <div class="search-form-row">
+                        <div class="form-group flex-1">
+                            <label for="trend-input">Retail Industry or Sector</label>
+                            <input type="text" id="trend-input" placeholder="e.g. European Retail, Supermarket Logistics, Discount Stores" value="European Retail">
+                        </div>
+                        <button id="search-trend-btn" class="btn-primary" style="margin-top: 1.5rem; width: auto; min-width: 180px;">
+                            <i class="fas fa-search"></i> Discover Trends
+                        </button>
+                    </div>
+                    <div id="trend-results" class="market-results-container">
+                        <p class="market-empty-text">Enter a sector to explore current retail macro trends and industry dynamics.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="frontend/js/main.js"></script>
+</body>
+</html>
