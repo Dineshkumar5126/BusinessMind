@@ -5,12 +5,15 @@ import traceback
 import pandas as pd
 import numpy as np
 import joblib
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, send_file
 from flask_cors import CORS
 from dotenv import load_dotenv
 
+# Project base directory (repository root)
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
 # Ensure environment variables from project root .env are loaded before any services
-env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../.env'))
+env_path = os.path.join(BASE_DIR, '.env')
 load_dotenv(env_path)
 
 # Ensure backend directory is in sys.path so sibling modules load correctly under any WSGI runner
@@ -21,7 +24,12 @@ if backend_dir not in sys.path:
 import market_service
 import genai_service
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    root_path=BASE_DIR,
+    static_folder=os.path.join(BASE_DIR, 'frontend'),
+    static_url_path='/frontend'
+)
 CORS(app)
 
 # ==========================================
@@ -29,21 +37,21 @@ CORS(app)
 # ==========================================
 
 print("Loading XGBoost model...")
-model_path = os.path.join(os.path.dirname(__file__), '../models/saved_models/xgboost.joblib')
+model_path = os.path.join(BASE_DIR, 'models/saved_models/xgboost.joblib')
 model = joblib.load(model_path)
 
 print("Loading Store Metadata...")
-store_path = os.path.join(os.path.dirname(__file__), '../data/raw/store.csv')
+store_path = os.path.join(BASE_DIR, 'data/raw/store.csv')
 store_df = pd.read_csv(store_path)
 
 print("Loading historical lags (latest available per store)...")
-store_lags_path = os.path.join(os.path.dirname(__file__), '../data/processed/store_lags.csv')
+store_lags_path = os.path.join(BASE_DIR, 'data/processed/store_lags.csv')
 if os.path.exists(store_lags_path):
     latest_lags = pd.read_csv(store_lags_path)
     print(f"Loaded {len(latest_lags)} store historical lag profiles from store_lags.csv.")
 else:
     # Graceful fallback to test_fe.csv if store_lags.csv is missing
-    test_fe_path = os.path.join(os.path.dirname(__file__), '../data/processed/test_fe.csv')
+    test_fe_path = os.path.join(BASE_DIR, 'data/processed/test_fe.csv')
     test_df = pd.read_csv(test_fe_path)
     latest_lags = test_df.sort_values('Date').groupby('Store').last().reset_index()[['Store', 'Lag_1', 'Lag_7', 'RollingMean_7']]
     print(f"Fallback: Loaded {len(latest_lags)} store profiles from test_fe.csv.")
@@ -61,22 +69,42 @@ FEATURES = ['Store', 'DayOfWeek', 'Open', 'Promo', 'SchoolHoliday', 'Competition
 # ==========================================
 
 @app.route('/', methods=['GET'])
+@app.route('/index.html', methods=['GET'])
 def serve_index():
-    """Serves the dashboard index.html when accessed via Flask root."""
-    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    return send_from_directory(root_dir, 'index.html')
+    """Serves the dashboard index.html when accessed via Flask root or /index.html."""
+    index_path = os.path.join(BASE_DIR, 'index.html')
+    if os.path.isfile(index_path):
+        return send_file(index_path, mimetype='text/html')
+    return jsonify({'error': 'index.html not found on server'}), 404
 
 @app.route('/frontend/<path:filename>', methods=['GET'])
 def serve_frontend(filename):
     """Serves CSS, JS, and image assets from the frontend directory."""
-    frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend'))
+    frontend_dir = os.path.join(BASE_DIR, 'frontend')
     return send_from_directory(frontend_dir, filename)
 
 @app.route('/reports/figures/<path:filename>', methods=['GET'])
 def serve_figures(filename):
     """Serves generated report figures."""
-    figures_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../reports/figures'))
+    figures_dir = os.path.join(BASE_DIR, 'reports', 'figures')
     return send_from_directory(figures_dir, filename)
+
+@app.route('/favicon.ico', methods=['GET'])
+def favicon():
+    """Returns 204 No Content for favicon requests to prevent 404 noise."""
+    return ('', 204)
+
+@app.errorhandler(404)
+def handle_not_found(e):
+    """Fallback handler: serves index.html for frontend navigation; returns JSON for API routes."""
+    api_prefixes = ('/predict/', '/insights/', '/metrics/', '/health/', '/ai/', '/market/', '/frontend/', '/reports/')
+    api_exact = {'/predict', '/insights', '/metrics', '/health', '/ai/health'}
+    if request.path in api_exact or request.path.startswith(api_prefixes):
+        return jsonify({'error': 'Endpoint not found'}), 404
+    index_path = os.path.join(BASE_DIR, 'index.html')
+    if os.path.isfile(index_path):
+        return send_file(index_path, mimetype='text/html')
+    return jsonify({'error': 'Not found'}), 404
 
 # ==========================================
 # Health & Monitoring Endpoints
@@ -98,7 +126,7 @@ def health():
 @app.route('/metrics', methods=['GET'])
 def get_metrics():
     """Dynamically reads and returns verified model evaluation metrics."""
-    metrics_path = os.path.join(os.path.dirname(__file__), '../reports/model_metrics.json')
+    metrics_path = os.path.join(BASE_DIR, 'reports/model_metrics.json')
     if os.path.exists(metrics_path):
         try:
             with open(metrics_path, 'r', encoding='utf-8') as f:

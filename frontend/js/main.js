@@ -15,16 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // 2. Browser HTTP/HTTPS execution
         if (window.location.protocol.startsWith('http')) {
-            // When served from the same Flask server
-            if (window.location.port === '5000') {
-                return '';
-            }
-            // Local development server on another port (e.g. 5500, 3000, 8080)
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            // Local development server running on a separate port (e.g. Live Server on 5500, 3000, 8080)
+            if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && 
+                window.location.port !== '5000' && window.location.port !== '') {
                 return 'http://localhost:5000';
             }
-            // Production deployment on same host / reverse proxy
-            return window.location.origin;
+            // Same origin for production deployment on Render and local Flask server
+            return '';
         }
         // 3. Fallback for file:// execution
         return 'http://localhost:5000';
