@@ -1,5 +1,9 @@
 # 📊 BusinessMind: Enterprise Retail Sales Prediction & Executive Analytics
+# BusinessMind
 
+### Business Sales Prediction and Analysis using Machine Learning
+
+🚀 **Live Demo:** https://businessmind-7vv4.onrender.com/
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Flask 3.1](https://img.shields.io/badge/Flask-3.1-black.svg)](https://flask.palletsprojects.com/)
 [![XGBoost](https://img.shields.io/badge/Model-XGBoost%20Regressor-orange.svg)](https://xgboost.readthedocs.io/)
