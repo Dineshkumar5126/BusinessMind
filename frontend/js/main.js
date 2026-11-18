@@ -210,7 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const askAiBtn = document.getElementById('ask-ai-btn');
     const aiInsightBox = document.getElementById('ai-insight-box');
     const aiInsightContent = document.getElementById('ai-insight-content');
-    const aiProvenance = document.getElementById('ai-provenance');
     
     let lastPredictionData = null;
 
@@ -280,7 +279,6 @@ document.addEventListener('DOMContentLoaded', () => {
             askAiBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating Business Summary...';
             askAiBtn.disabled = true;
             aiInsightBox.style.display = 'block';
-            if (aiProvenance) aiProvenance.innerHTML = '';
             aiInsightContent.innerHTML = '<div style="grid-column: 1 / -1; padding: 1.5rem; color: var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Synthesizing executive business insights...</div>';
             
             try {
@@ -293,19 +291,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
                 
                 if (response.ok && (data.status === 'success' || data.status === 'fallback')) {
-                    const isFallback = Boolean(data.is_fallback || data.source === 'local' || data.status === 'fallback');
-
-                    // Set clean executive attribution without provider branding
-                    if (aiProvenance) {
-                        if (!isFallback && data.source === 'gemini') {
-                            aiProvenance.className = 'ai-provenance live';
-                            aiProvenance.textContent = 'Executive Summary (Automated Synthesis)';
-                        } else {
-                            aiProvenance.className = 'ai-provenance fallback';
-                            aiProvenance.textContent = 'Executive Summary (Model Heuristic)';
-                        }
-                    }
-
                     aiInsightContent.innerHTML = data.insights;
                     
                     // Assign layout classes dynamically:
@@ -332,13 +317,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     });
                 } else {
-                    if (aiProvenance) aiProvenance.innerHTML = '';
-                    aiInsightContent.innerHTML = `<div style="grid-column: 1 / -1; color: var(--error);">Error: ${data.error || 'Unable to retrieve insights.'}</div>`;
+                    aiInsightContent.innerHTML = `<div style="grid-column: 1 / -1; color: var(--danger);">Error: ${data.error || 'Unable to retrieve insights.'}</div>`;
                 }
             } catch (error) {
                 console.error('Error fetching AI insights:', error);
-                if (aiProvenance) aiProvenance.innerHTML = '';
-                aiInsightContent.innerHTML = '<div style="grid-column: 1 / -1; color: var(--error);">Failed to connect to AI Advisor service.</div>';
+                aiInsightContent.innerHTML = '<div style="grid-column: 1 / -1; color: var(--danger);">Failed to connect to business insights service.</div>';
             } finally {
                 askAiBtn.innerHTML = '<i class="fas fa-file-alt"></i> Generate Business Summary';
                 askAiBtn.disabled = false;

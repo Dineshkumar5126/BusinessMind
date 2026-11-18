@@ -590,25 +590,6 @@ input:disabled, select:disabled {
     border: 1px solid var(--border);
 }
 
-.ai-provenance {
-    font-size: 0.775rem;
-    font-weight: 500;
-    color: var(--text-muted);
-    background: transparent;
-    border: none;
-    padding: 0;
-    margin: 0;
-    white-space: nowrap;
-}
-
-.ai-provenance.live {
-    color: var(--accent);
-}
-
-.ai-provenance.fallback {
-    color: var(--text-muted);
-}
-
 .ai-report-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
