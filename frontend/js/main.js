@@ -30,29 +30,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_BASE = getApiBaseUrl();
 
     // ==========================================
-    // 2. Theme Toggle Controller
+    // 2. Light / Dark Theme Controller
     // ==========================================
     const themeToggleBtn = document.getElementById('theme-toggle');
     const themeIcon = document.getElementById('theme-icon');
-    
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-        document.documentElement.setAttribute('data-theme', 'light');
-        if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
+    const themeText = document.getElementById('theme-text');
+
+    function applyTheme(theme) {
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            if (themeIcon) {
+                themeIcon.className = 'fas fa-sun';
+            }
+            if (themeText) {
+                themeText.textContent = 'Light Mode';
+            }
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+            if (themeIcon) {
+                themeIcon.className = 'fas fa-moon';
+            }
+            if (themeText) {
+                themeText.textContent = 'Dark Mode';
+            }
+        }
     }
 
-    if (themeToggleBtn && themeIcon) {
+    // Default to 'light' for first-time visitors
+    const initialTheme = localStorage.getItem('businessmind_theme') || 'light';
+    applyTheme(initialTheme);
+
+    if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            if (currentTheme === 'light') {
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem('theme', 'dark');
-                themeIcon.classList.replace('fa-sun', 'fa-moon');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-                localStorage.setItem('theme', 'light');
-                themeIcon.classList.replace('fa-moon', 'fa-sun');
-            }
+            const activeTheme = document.documentElement.getAttribute('data-theme');
+            const nextTheme = activeTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(nextTheme);
+            localStorage.setItem('businessmind_theme', nextTheme);
         });
     }
 
@@ -282,14 +295,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok && (data.status === 'success' || data.status === 'fallback')) {
                     const isFallback = Boolean(data.is_fallback || data.source === 'local' || data.status === 'fallback');
 
-                    // Set clean unobtrusive provenance tag
+                    // Set clean executive attribution without provider branding
                     if (aiProvenance) {
                         if (!isFallback && data.source === 'gemini') {
                             aiProvenance.className = 'ai-provenance live';
-                            aiProvenance.innerHTML = '<span class="dot"></span><span>AI-generated · Gemini</span>';
+                            aiProvenance.textContent = 'Executive Summary (Automated Synthesis)';
                         } else {
                             aiProvenance.className = 'ai-provenance fallback';
-                            aiProvenance.innerHTML = '<span class="dot"></span><span>Model-based fallback · AI service unavailable</span>';
+                            aiProvenance.textContent = 'Executive Summary (Model Heuristic)';
                         }
                     }
 
@@ -448,261 +461,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } finally {
                 runWhatIfBtn.disabled = false;
                 runWhatIfBtn.innerHTML = '<i class="fas fa-play"></i> Run Scenario Comparison';
-            }
-        });
-    }
-
-    // ==========================================
-    // 8. Market Intelligence Controller
-    // ==========================================
-    // Tab Switching
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabPanes = document.querySelectorAll('.tab-pane');
-
-    tabButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            tabButtons.forEach(b => b.classList.remove('active'));
-            tabPanes.forEach(p => p.classList.remove('active'));
-
-            btn.classList.add('active');
-            const targetPaneId = btn.getAttribute('data-tab');
-            const targetPane = document.getElementById(targetPaneId);
-            if (targetPane) targetPane.classList.add('active');
-        });
-    });
-
-    // Helper: render clean disclaimer note
-    function getDisclaimerHtml(disclaimer) {
-        if (!disclaimer) return '';
-        return `
-            <p class="market-disclaimer-note">
-                <i class="fas fa-info-circle"></i>
-                <span>Illustrative benchmark data displayed when external search API operates in simulated mode.</span>
-            </p>
-        `;
-    }
-
-    // Helper: render clean source note
-    function getSourceBadge(isFallback) {
-        if (isFallback) {
-            return '<span class="market-source-note"><i class="fas fa-circle-notch"></i> Illustrative simulated benchmark</span>';
-        }
-        return '<span class="market-source-note live"><i class="fas fa-circle" style="font-size: 0.45rem;"></i> Live search</span>';
-    }
-
-    // Helper: render legitimate URL or simulated benchmark label
-    function renderCardLinkOrSource(item, isFallback) {
-        if (!isFallback && item.url && (item.url.startsWith('http://') || item.url.startsWith('https://')) && !item.url.includes('example.com')) {
-            return `<a href="${item.url}" target="_blank" rel="noopener noreferrer" class="market-card-link"><i class="fas fa-external-link-alt"></i> ${item.url}</a>`;
-        }
-        return `<div class="market-card-source"><span class="source-label">Source:</span> Illustrative simulated benchmark</div>`;
-    }
-
-    // 8A. Competitor Analysis
-    const searchCompetitorBtn = document.getElementById('search-competitor-btn');
-    const competitorInput = document.getElementById('competitor-input');
-    const competitorResults = document.getElementById('competitor-results');
-
-    if (searchCompetitorBtn && competitorInput && competitorResults) {
-        searchCompetitorBtn.addEventListener('click', async () => {
-            const name = competitorInput.value.trim();
-            if (!name) {
-                alert('Please enter a competitor name.');
-                return;
-            }
-
-            searchCompetitorBtn.disabled = true;
-            searchCompetitorBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
-            competitorResults.innerHTML = '<p class="market-empty-text"><i class="fas fa-spinner fa-spin"></i> Retrieving competitor intelligence...</p>';
-
-            try {
-                const response = await fetch(`${API_BASE}/market/competitor`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ competitor_name: name })
-                });
-
-                const data = await response.json();
-                if (response.ok && data.status === 'success') {
-                    const isFallback = Boolean(data.is_fallback);
-                    let html = '';
-
-                    if (isFallback && data.disclaimer) {
-                        html += getDisclaimerHtml(data.disclaimer);
-                    }
-
-                    html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; margin-bottom: 0.75rem;">
-                        <h3 style="font-size: 1.05rem; color: var(--text-main); font-weight: 600;">Findings for ${data.competitor}</h3>
-                        ${getSourceBadge(isFallback)}
-                    </div>`;
-
-                    if (Array.isArray(data.findings) && data.findings.length > 0) {
-                        data.findings.forEach(f => {
-                            html += `
-                                <div class="market-card">
-                                    <div class="market-card-header">
-                                        <div class="market-card-title">${f.title || 'Market Finding'}</div>
-                                    </div>
-                                    <div class="market-card-snippet">${f.snippet || 'No description available.'}</div>
-                                    ${renderCardLinkOrSource(f, isFallback)}
-                                </div>
-                            `;
-                        });
-                    } else {
-                        html += '<p class="market-empty-text">No organic search findings returned for this query.</p>';
-                    }
-
-                    competitorResults.innerHTML = html;
-                } else {
-                    competitorResults.innerHTML = `<p style="color: var(--error);">Error: ${data.error || 'Failed to retrieve competitor analysis.'}</p>`;
-                }
-            } catch (err) {
-                console.error('Competitor search error:', err);
-                competitorResults.innerHTML = '<p style="color: var(--error);">Unable to connect to market service.</p>';
-            } finally {
-                searchCompetitorBtn.disabled = false;
-                searchCompetitorBtn.innerHTML = '<i class="fas fa-search"></i> Analyze Competitor';
-            }
-        });
-    }
-
-    // 8B. Keyword & Demand Analysis
-    const searchKeywordBtn = document.getElementById('search-keyword-btn');
-    const keywordInput = document.getElementById('keyword-input');
-    const keywordResults = document.getElementById('keyword-results');
-
-    if (searchKeywordBtn && keywordInput && keywordResults) {
-        searchKeywordBtn.addEventListener('click', async () => {
-            const topic = keywordInput.value.trim();
-            if (!topic) {
-                alert('Please enter a retail keyword or category.');
-                return;
-            }
-
-            searchKeywordBtn.disabled = true;
-            searchKeywordBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Researching...';
-            keywordResults.innerHTML = '<p class="market-empty-text"><i class="fas fa-spinner fa-spin"></i> Querying search patterns and demand keywords...</p>';
-
-            try {
-                const response = await fetch(`${API_BASE}/market/keyword`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ topic: topic })
-                });
-
-                const data = await response.json();
-                if (response.ok && data.status === 'success') {
-                    const isFallback = Boolean(data.is_fallback);
-                    let html = '';
-
-                    if (isFallback && data.disclaimer) {
-                        html += getDisclaimerHtml(data.disclaimer);
-                    }
-
-                    html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; margin-bottom: 0.75rem;">
-                        <h3 style="font-size: 1.05rem; color: var(--text-main); font-weight: 600;">Demand Patterns for "${data.topic}"</h3>
-                        ${getSourceBadge(isFallback)}
-                    </div>`;
-
-                    if (Array.isArray(data.related_keywords) && data.related_keywords.length > 0) {
-                        html += `
-                            <div class="market-card">
-                                <div class="market-card-title" style="font-size: 0.875rem; margin-bottom: 0.4rem;"><i class="fas fa-tags"></i> Related Consumer Search Queries</div>
-                                <div class="keyword-cloud">
-                                    ${data.related_keywords.map(kw => `<span class="keyword-pill">${kw}</span>`).join('')}
-                                </div>
-                            </div>
-                        `;
-                    }
-
-                    if (Array.isArray(data.top_results) && data.top_results.length > 0) {
-                        data.top_results.forEach(r => {
-                            html += `
-                                <div class="market-card">
-                                    <div class="market-card-title">${r.title || 'Market Search Result'}</div>
-                                    <div class="market-card-snippet">${r.snippet || 'No description available.'}</div>
-                                    ${renderCardLinkOrSource(r, isFallback)}
-                                </div>
-                            `;
-                        });
-                    }
-
-                    keywordResults.innerHTML = html;
-                } else {
-                    keywordResults.innerHTML = `<p style="color: var(--error);">Error: ${data.error || 'Failed to retrieve keyword research.'}</p>`;
-                }
-            } catch (err) {
-                console.error('Keyword search error:', err);
-                keywordResults.innerHTML = '<p style="color: var(--error);">Unable to connect to keyword service.</p>';
-            } finally {
-                searchKeywordBtn.disabled = false;
-                searchKeywordBtn.innerHTML = '<i class="fas fa-search"></i> Research Keywords';
-            }
-        });
-    }
-
-    // 8C. Trend Discovery
-    const searchTrendBtn = document.getElementById('search-trend-btn');
-    const trendInput = document.getElementById('trend-input');
-    const trendResults = document.getElementById('trend-results');
-
-    if (searchTrendBtn && trendInput && trendResults) {
-        searchTrendBtn.addEventListener('click', async () => {
-            const industry = trendInput.value.trim();
-            if (!industry) {
-                alert('Please enter an industry or retail sector.');
-                return;
-            }
-
-            searchTrendBtn.disabled = true;
-            searchTrendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Discovering...';
-            trendResults.innerHTML = '<p class="market-empty-text"><i class="fas fa-spinner fa-spin"></i> Scanning retail industry trends...</p>';
-
-            try {
-                const response = await fetch(`${API_BASE}/market/trend`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ industry: industry })
-                });
-
-                const data = await response.json();
-                if (response.ok && data.status === 'success') {
-                    const isFallback = Boolean(data.is_fallback);
-                    let html = '';
-
-                    if (isFallback && data.disclaimer) {
-                        html += getDisclaimerHtml(data.disclaimer);
-                    }
-
-                    html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; margin-bottom: 0.75rem;">
-                        <h3 style="font-size: 1.05rem; color: var(--text-main); font-weight: 600;">Macro Trends: ${data.industry}</h3>
-                        ${getSourceBadge(isFallback)}
-                    </div>`;
-
-                    if (Array.isArray(data.recent_trends) && data.recent_trends.length > 0) {
-                        data.recent_trends.forEach(t => {
-                            html += `
-                                <div class="market-card">
-                                    <div class="market-card-title">${t.title || 'Retail Trend Finding'}</div>
-                                    <div class="market-card-snippet">${t.snippet || 'No description available.'}</div>
-                                    ${renderCardLinkOrSource(t, isFallback)}
-                                </div>
-                            `;
-                        });
-                    } else {
-                        html += '<p class="market-empty-text">No trend findings returned for this sector.</p>';
-                    }
-
-                    trendResults.innerHTML = html;
-                } else {
-                    trendResults.innerHTML = `<p style="color: var(--error);">Error: ${data.error || 'Failed to retrieve industry trends.'}</p>`;
-                }
-            } catch (err) {
-                console.error('Trend search error:', err);
-                trendResults.innerHTML = '<p style="color: var(--error);">Unable to connect to trend service.</p>';
-            } finally {
-                searchTrendBtn.disabled = false;
-                searchTrendBtn.innerHTML = '<i class="fas fa-search"></i> Discover Trends';
             }
         });
     }

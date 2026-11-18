@@ -1,11 +1,11 @@
-# 📊 BusinessMind: Enterprise Retail Sales Prediction & Market Intelligence
+# 📊 BusinessMind: Enterprise Retail Sales Prediction & Executive Analytics
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Flask 3.1](https://img.shields.io/badge/Flask-3.1-black.svg)](https://flask.palletsprojects.com/)
 [![XGBoost](https://img.shields.io/badge/Model-XGBoost%20Regressor-orange.svg)](https://xgboost.readthedocs.io/)
 [![Deployment](https://img.shields.io/badge/Deploy-Render%20Ready-green.svg)](https://render.com/)
 
-**BusinessMind** is an end-to-end Machine Learning web application designed to forecast daily retail store sales, simulate "What-If" business scenarios, generate executive AI business insights, and analyze external market intelligence.
+**BusinessMind** is an end-to-end Machine Learning web application designed to forecast daily retail store sales, simulate "What-If" business scenarios, and generate executive business insights with automated fallback synthesis.
 
 Built for retail store managers, analysts, and enterprise planners, BusinessMind bridges the gap between raw statistical forecasting and managerial decision-making.
 
@@ -31,13 +31,13 @@ Built for retail store managers, analysts, and enterprise planners, BusinessMind
 Retail store chains with hundreds of geographically dispersed locations face complex operational challenges:
 - **Demand Volatility**: Sales vary drastically across promotional cycles, public holidays, school vacations, and day-of-week patterns.
 - **Resource Misallocation**: Inaccurate demand estimation leads to over-staffing or under-stocking, inflating operational costs and eroding operating margins.
-- **Decision Silos**: Traditional machine learning models deliver isolated numerical predictions without operational context, scenario simulation, or market awareness.
+- **Decision Silos**: Traditional machine learning models deliver isolated numerical predictions without operational context or scenario simulation.
 
 **BusinessMind** addresses these challenges by uniting:
 1. **High-Accuracy Supervised ML**: An engineered XGBoost Regressor explaining ~90% of sales variance ($R^2 = 0.8999$).
 2. **Interactive What-If Simulation**: Sensitivity comparison allowing managers to model promotional and calendar interventions before execution.
-3. **Generative AI Executive Insights**: Automated managerial interpretation powered by Google Gemini with a resilient zero-downtime heuristic fallback engine.
-4. **Market Intelligence**: Retail competitor tracking, consumer search queries, and macro retail trends.
+3. **Executive Business Summary Synthesis**: Structured managerial interpretation with a resilient zero-downtime heuristic fallback engine.
+4. **Accessible Analytical UI**: Dual Light/Dark mode dashboard with comfortable contrast, typography, and clean information hierarchy.
 
 ---
 
@@ -54,7 +54,7 @@ Retail store chains with hundreds of geographically dispersed locations face com
 - **Delta Analysis**: Displays absolute dollar delta ($\pm\$X$) and percentage revenue lift ($\pm Y\%$) with a visual sensitivity bar.
 - Evaluates operational changes as model-based scenario estimates without claiming unverified causal certainty.
 
-### 3. 🧠 AI Business Insights & Resilient Fallback
+### 3. 🧠 Executive Business Insights & Resilient Fallback
 - Interprets forecast numbers into an executive 6-section business report:
   1. *Sales Forecast Summary*
   2. *Key Factors*
@@ -62,26 +62,20 @@ Retail store chains with hundreds of geographically dispersed locations face com
   4. *Recommended Operational Actions*
   5. *Risks & Limitations*
   6. *Final Business Insight*
-- **Enterprise-Grade Fallback**: If external LLM APIs are unreachable, rate-limited, or unconfigured, an automated local heuristic engine instantly serves a structured managerial brief.
+- **Enterprise-Grade Fallback**: If external generative APIs are unreachable, rate-limited, or unconfigured, an automated local heuristic engine instantly serves a structured managerial brief without downtime.
 
-### 4. 🌐 Market Intelligence
-- **Competitor Analysis**: Benchmarks competitor pricing models, discounting frequency, and assortment strategies.
-- **Keyword & Demand Analysis**: Discovers rising consumer retail queries and related search patterns.
-- **Trend Discovery**: Identifies macro retail shifts (omnichannel logistics, private label expansion, dynamic pricing).
-- **Transparent Sourcing**: Prominently distinguishes between live API results and curated retail benchmark fallbacks.
-
-### 5. 📊 Model Diagnostics & Visual Comparison
+### 4. 📊 Model Diagnostics & Visual Comparison
 - Interactive metrics table reading dynamic evaluation scores directly from the backend.
 - Embedded diagnostic visualizations:
   - *Actual vs. Predicted Daily Sales (Chronological Test Set)*
   - *Model Comparison (MAE, RMSE, $R^2$ across Linear Regression, Random Forest, XGBoost)*
   - *XGBoost Residual Error Distribution (Gaussian validation)*
 
-### 6. 🎨 Modern Responsive UI
-- Fully responsive layout optimized for desktop, tablet, and mobile browsers.
-- Real-time connection health monitor (`GET /health`) dynamically reflecting ML API state.
-- Dark mode default with persistent theme switching saved to `localStorage`.
-- Smooth scroll navigation paired with an automated `IntersectionObserver` scrollspy.
+### 5. 🎨 Polished Dual-Theme Interface
+- Warm off-white and sage green light theme by default for high readability.
+- Professional charcoal/graphite dark mode accessible via a one-click header toggle.
+- Theme selection persists across browser reloads via `localStorage`.
+- White chart containers ensure all Matplotlib plots remain readable in both themes.
 
 ---
 
@@ -95,9 +89,9 @@ Retail store chains with hundreds of geographically dispersed locations face com
 │   ├── Dynamic API Base URL Resolution (Same-Origin / Remote)           │
 │   ├── Real-Time Health Status Polling (GET /health)                    │
 │   ├── Dynamic Evaluation Metrics Fetcher (GET /metrics)                │
-│   ├── XGBoost Prediction Form & AI Advisor Controller                  │
+│   ├── XGBoost Prediction Form & Business Summary Controller           │
 │   ├── Smart What-If Scenario Comparison Engine                         │
-│   └── Market Intelligence Tabbed Search UI                             │
+│   └── Persistent Light / Dark Mode Theme Switcher                      │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │ HTTP JSON Requests (CORS Enabled)
                                     ▼
@@ -109,11 +103,8 @@ Retail store chains with hundreds of geographically dispersed locations face com
 │   ├── GET /health ──────────────► System Status & Model Health         │
 │   ├── GET /metrics ─────────────► reports/model_metrics.json           │
 │   ├── POST /predict ────────────► XGBoost Pipeline (28 Features)       │
-│   ├── POST /insights ───────────► backend/genai_service.py             │
-│   │                               (Gemini API + Local Heuristic)       │
-│   ├── POST /market/competitor ──┐                                      │
-│   ├── POST /market/keyword ─────┼► backend/market_service.py           │
-│   └── POST /market/trend ───────┘  (Serpstack API + Benchmark Fallback)│
+│   └── POST /insights ───────────► backend/genai_service.py             │
+│                                   (External Synthesis + Fallback)      │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
                                     ▼
@@ -196,20 +187,7 @@ Dynamically reads validated evaluation benchmarks from `reports/model_metrics.js
 }
 ```
 
-### 3. `GET /ai/health`
-Returns safe diagnostic health metrics for the GenAI service without exposing API credentials.
-```json
-{
-  "status": "healthy",
-  "api_key_configured": true,
-  "primary_model": "gemini-flash-lite-latest",
-  "fallback_model": "gemini-3.6-flash",
-  "last_request_status": "success",
-  "last_source": "gemini"
-}
-```
-
-### 4. `POST /predict`
+### 3. `POST /predict`
 Generates a sales prediction for specified calendar and operating conditions.
 - **Payload**:
   ```json
@@ -232,7 +210,7 @@ Generates a sales prediction for specified calendar and operating conditions.
   ```
 
 ### 4. `POST /insights`
-Generates managerial business interpretation via Google Gemini (or local heuristic fallback).
+Generates managerial business interpretation with automated fallback.
 - **Payload**:
   ```json
   {
@@ -248,23 +226,9 @@ Generates managerial business interpretation via Google Gemini (or local heurist
   ```json
   {
     "insights": "<div class=\"ai-report-section\">...</div>",
-    "model": "gemini-flash-lite-latest",
-    "source": "gemini",
     "status": "success"
   }
   ```
-
-### 5. `POST /market/competitor`
-Returns competitor intelligence (live search or simulated retail benchmark).
-- **Payload**: `{"competitor_name": "Aldi"}`
-
-### 6. `POST /market/keyword`
-Returns retail consumer search patterns and related query tags.
-- **Payload**: `{"topic": "organic cosmetics"}`
-
-### 7. `POST /market/trend`
-Returns sector-level macro retail developments.
-- **Payload**: `{"industry": "European Retail"}`
 
 ---
 
@@ -303,11 +267,9 @@ cp .env.example .env
 ```
 Open `.env` in any text editor:
 ```env
-# Optional: Add active keys for live features
+# Optional: Add active keys for live external AI insights
 # (If left as placeholders, system gracefully utilizes built-in fallbacks)
-SERPSTACK_API_KEY=your_serpstack_api_key_here
-GEMINI_API_KEY=your_gemini_api_key_here
-
+GEMINI_API_KEY=your_api_key_here
 GEMINI_MODEL=gemini-flash-lite-latest
 GEMINI_FALLBACK_MODEL=gemini-3.6-flash
 PORT=5000
@@ -335,7 +297,15 @@ gunicorn backend.app:app
 BusinessMind is architected for automated, single-service deployment on **[Render](https://render.com/)**.
 
 ### Step 1: Push Code to GitHub
-Ensure `.env` is ignored and push your clean repository to GitHub.
+Ensure `.env` is ignored by `.gitignore` and push your repository to GitHub:
+```bash
+git status
+git add .
+git commit -m "Prepare BusinessMind for production deployment"
+git branch -M main
+git remote add origin https://github.com/<your-username>/BusinessMind.git
+git push -u origin main
+```
 
 ### Step 2: Create a New Web Service on Render
 1. Log into your Render Dashboard and click **New + > Web Service**.
@@ -361,10 +331,9 @@ In the **Environment** tab of your Render service, add:
 - `FLASK_DEBUG` = `0`
 - `GEMINI_MODEL` = `gemini-flash-lite-latest`
 - `GEMINI_FALLBACK_MODEL` = `gemini-3.6-flash`
-- `GEMINI_API_KEY` = *(Your Google Gemini API Key)*
-- `SERPSTACK_API_KEY` = *(Your Serpstack Key, optional)*
+- `GEMINI_API_KEY` = *(Optional: your API key for live external synthesis)*
 
-Render automatically binds to the `$PORT` variable. Once deployed, Render will provide an HTTPS URL (e.g. `https://businessmind.onrender.com`).
+Render automatically binds to the `$PORT` variable and provisions an HTTPS URL (e.g. `https://businessmind.onrender.com`).
 
 ---
 
@@ -375,8 +344,7 @@ BusinessMind/
 ├── backend/
 │   ├── __init__.py               # Package marker for WSGI runners
 │   ├── app.py                    # Flask application, routing & asset serving
-│   ├── genai_service.py          # Gemini API integration & rule-based fallback
-│   └── market_service.py         # Serpstack wrapper & benchmark fallbacks
+│   └── genai_service.py          # AI business insights & heuristic fallback
 ├── data/
 │   ├── processed/
 │   │   ├── store_lags.csv        # 39 KB pre-extracted store lag profiles
@@ -385,9 +353,9 @@ BusinessMind/
 │       └── store.csv             # Store metadata (Assortment, StoreType, etc.)
 ├── frontend/
 │   ├── css/
-│   │   └── style.css             # Unified dark/light theme, layout & cards
+│   │   └── style.css             # Dual light/dark theme, layout & cards
 │   └── js/
-│       └── main.js               # Client controller, What-If simulator, dynamic API
+│       └── main.js               # Client controller, What-If simulator, theme engine
 ├── models/
 │   └── saved_models/
 │       ├── linear_regression.joblib  # Baseline model binary (1 KB)
@@ -409,9 +377,7 @@ BusinessMind/
 
 1. **Model-Based Scenario Estimations**:
    The **Smart What-If Sales Analysis** computes predictions strictly by passing modified feature vectors into the trained XGBoost model. It reflects the model's mathematical sensitivity to input variations and serves as a planning heuristic; it does not claim to establish verified causal mechanisms.
-2. **Market Intelligence Transparency**:
-   When third-party search APIs are unconfigured or unavailable, BusinessMind presents simulated industry retail benchmarks clearly labeled with an amber banner. Simulated data is never represented as live research.
-3. **Data Protection**:
+2. **Data Protection**:
    All API credentials and secret files are excluded from version control via `.gitignore`.
 
 ---
@@ -426,7 +392,7 @@ BusinessMind/
 
 ## 👨‍💻 Capstone Information
 
-- **Project**: BusinessMind — AI & Machine Learning Sales Forecasting System
+- **Project**: BusinessMind — Retail Sales Prediction & Executive Analytics
 - **Specialization**: B.Tech Computer Science & Engineering (AI & ML)
 - **Primary Model**: XGBoost Regressor ($R^2 = 0.8999$, RMSE = \$963.28)
 - **License**: MIT License

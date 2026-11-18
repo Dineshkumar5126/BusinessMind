@@ -21,7 +21,6 @@ backend_dir = os.path.dirname(os.path.abspath(__file__))
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
-import market_service
 import genai_service
 
 app = Flask(
@@ -97,7 +96,7 @@ def favicon():
 @app.errorhandler(404)
 def handle_not_found(e):
     """Fallback handler: serves index.html for frontend navigation; returns JSON for API routes."""
-    api_prefixes = ('/predict/', '/insights/', '/metrics/', '/health/', '/ai/', '/market/', '/frontend/', '/reports/')
+    api_prefixes = ('/predict/', '/insights/', '/metrics/', '/health/', '/ai/', '/frontend/', '/reports/')
     api_exact = {'/predict', '/insights', '/metrics', '/health', '/ai/health'}
     if request.path in api_exact or request.path.startswith(api_prefixes):
         return jsonify({'error': 'Endpoint not found'}), 404
@@ -277,37 +276,6 @@ def predict():
     except Exception as e:
         print(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
-
-# ==========================================
-# Market Intelligence Endpoints
-# ==========================================
-
-@app.route('/market/competitor', methods=['POST'])
-def market_competitor():
-    data = request.json
-    if not data or not data.get('competitor_name'):
-        return jsonify({'error': 'Missing competitor_name in request'}), 400
-        
-    result, status_code = market_service.get_competitor_analysis(data['competitor_name'])
-    return jsonify(result), status_code
-
-@app.route('/market/keyword', methods=['POST'])
-def market_keyword():
-    data = request.json
-    if not data or not data.get('topic'):
-        return jsonify({'error': 'Missing topic in request'}), 400
-        
-    result, status_code = market_service.get_keyword_search(data['topic'])
-    return jsonify(result), status_code
-
-@app.route('/market/trend', methods=['POST'])
-def market_trend():
-    data = request.json
-    if not data or not data.get('industry'):
-        return jsonify({'error': 'Missing industry in request'}), 400
-        
-    result, status_code = market_service.get_trend_discovery(data['industry'])
-    return jsonify(result), status_code
 
 # ==========================================
 # GenAI Insight Endpoint

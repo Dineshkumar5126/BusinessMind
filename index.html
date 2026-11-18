@@ -19,7 +19,7 @@
             <div class="brand-title">
                 <i class="fas fa-chart-line"></i> <span>BusinessMind</span>
             </div>
-            <div class="brand-subtitle">Retail Analytics Platform</div>
+            <div class="brand-subtitle">Retail Sales Prediction & Analysis</div>
         </div>
         <ul class="nav-menu">
             <li class="nav-item"><a href="#prediction-engine" class="active"><i class="fas fa-calculator"></i> <span>Prediction Engine</span></a></li>
@@ -27,7 +27,6 @@
             <li class="nav-item"><a href="#model-evaluation"><i class="fas fa-clipboard-check"></i> <span>Model Evaluation</span></a></li>
             <li class="nav-item"><a href="#historical-trends"><i class="fas fa-history"></i> <span>Historical Trends</span></a></li>
             <li class="nav-item"><a href="#model-comparison"><i class="fas fa-balance-scale"></i> <span>Model Comparison</span></a></li>
-            <li class="nav-item"><a href="#market-intelligence"><i class="fas fa-globe"></i> <span>Market Intelligence</span></a></li>
         </ul>
     </nav>
 
@@ -35,42 +34,20 @@
     <main class="main-content">
         <header class="top-header">
             <div class="header-titles">
-                <h1>Retail Sales Prediction & Analysis</h1>
-                <p>Enterprise forecasting with gradient-boosted decision trees (XGBoost)</p>
+                <h1>BusinessMind</h1>
+                <p class="header-subtitle">Retail Sales Prediction & Analysis</p>
+                <p class="header-desc">End-to-end sales forecasting system powered by gradient boosted decision trees (XGBoost).</p>
                 <div class="status-indicator connecting" id="status-indicator">
                     <span class="status-dot connecting" id="status-dot"></span> <span id="status-text">Connecting to ML API...</span>
                 </div>
             </div>
             <div class="header-controls">
-                <button id="theme-toggle" class="btn-icon" aria-label="Toggle Theme">
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Light and Dark Mode" title="Toggle Light/Dark Theme">
                     <i class="fas fa-moon" id="theme-icon"></i>
+                    <span id="theme-text">Dark Mode</span>
                 </button>
             </div>
         </header>
-
-        <!-- KPI Summary Row -->
-        <div class="kpi-grid">
-            <div class="kpi-card">
-                <div class="kpi-title">Production Model</div>
-                <div class="kpi-value" id="kpi-model">XGBoost</div>
-                <div class="kpi-desc">Lowest RMSE & Highest R²</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-title">R² Score</div>
-                <div class="kpi-value" id="kpi-r2">0.8999</div>
-                <div class="kpi-desc">Variance Explained (0 to 1)</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-title">RMSE ($)</div>
-                <div class="kpi-value" id="kpi-rmse">963.28</div>
-                <div class="kpi-desc">Root Mean Squared Error</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-title">Holdout Test Records</div>
-                <div class="kpi-value" id="kpi-records">41,396</div>
-                <div class="kpi-desc">Final 6 weeks unseen data</div>
-            </div>
-        </div>
 
         <!-- Prediction Engine Section -->
         <section id="prediction-engine" class="dashboard-grid">
@@ -133,7 +110,7 @@
                     <p class="prediction-note">Calculated using 28-feature pipeline, store lag metrics, and calendar inputs.</p>
                 </div>
                 <p class="prediction-subnote">
-                    <em>Real-time inference generated via Flask REST API.</em>
+                    Real-time inference generated via Flask REST API.
                 </p>
                 <button id="ask-ai-btn" class="btn-purple full-width" style="display: none;">
                     <i class="fas fa-file-alt"></i> Generate Business Summary
@@ -392,71 +369,6 @@
                     <img src="reports/figures/residuals_xgb.png" alt="Residuals Distribution" class="chart-img" style="max-width: 800px; display: block; margin: 0 auto;">
                 </div>
                 <p class="chart-figure-caption">Figure 3: Residual error distribution for the final XGBoost model, exhibiting a near-zero mean with symmetric spread.</p>
-            </div>
-        </section>
-
-        <!-- Market Intelligence Section -->
-        <section id="market-intelligence" class="dashboard-grid">
-            <div class="section-header">
-                <h2>Market Intelligence</h2>
-                <p>External retail intelligence powered by real-time search APIs and simulated benchmarks.</p>
-            </div>
-
-            <div class="card section-full" style="padding: 1.75rem;">
-                <!-- Tab Navigation -->
-                <div class="tab-nav">
-                    <button class="tab-btn active" data-tab="tab-competitor"><i class="fas fa-store-alt"></i> Competitor Analysis</button>
-                    <button class="tab-btn" data-tab="tab-keyword"><i class="fas fa-search-dollar"></i> Keyword & Demand</button>
-                    <button class="tab-btn" data-tab="tab-trend"><i class="fas fa-chart-line"></i> Trend Discovery</button>
-                </div>
-
-                <!-- Tab 1: Competitor Analysis -->
-                <div class="tab-pane active" id="tab-competitor">
-                    <div class="search-form-row">
-                        <div class="form-group flex-1">
-                            <label for="competitor-input">Competitor Name or Retail Brand</label>
-                            <input type="text" id="competitor-input" placeholder="e.g. Walmart, Aldi, Carrefour, Tesco" value="Aldi">
-                        </div>
-                        <button id="search-competitor-btn" class="btn-primary" style="margin-top: 1.5rem; width: auto; min-width: 180px;">
-                            <i class="fas fa-search"></i> Analyze Competitor
-                        </button>
-                    </div>
-                    <div id="competitor-results" class="market-results-container">
-                        <p class="market-empty-text">Enter a competitor brand above and click Analyze to view retail intelligence.</p>
-                    </div>
-                </div>
-
-                <!-- Tab 2: Keyword Research -->
-                <div class="tab-pane" id="tab-keyword">
-                    <div class="search-form-row">
-                        <div class="form-group flex-1">
-                            <label for="keyword-input">Retail Product or Category Keyword</label>
-                            <input type="text" id="keyword-input" placeholder="e.g. organic cosmetics, daily essentials, seasonal discounts" value="organic cosmetics">
-                        </div>
-                        <button id="search-keyword-btn" class="btn-primary" style="margin-top: 1.5rem; width: auto; min-width: 180px;">
-                            <i class="fas fa-search"></i> Research Keywords
-                        </button>
-                    </div>
-                    <div id="keyword-results" class="market-results-container">
-                        <p class="market-empty-text">Enter a retail keyword above to view consumer search patterns and related topics.</p>
-                    </div>
-                </div>
-
-                <!-- Tab 3: Trend Discovery -->
-                <div class="tab-pane" id="tab-trend">
-                    <div class="search-form-row">
-                        <div class="form-group flex-1">
-                            <label for="trend-input">Retail Industry or Sector</label>
-                            <input type="text" id="trend-input" placeholder="e.g. European Retail, Supermarket Logistics, Discount Stores" value="European Retail">
-                        </div>
-                        <button id="search-trend-btn" class="btn-primary" style="margin-top: 1.5rem; width: auto; min-width: 180px;">
-                            <i class="fas fa-search"></i> Discover Trends
-                        </button>
-                    </div>
-                    <div id="trend-results" class="market-results-container">
-                        <p class="market-empty-text">Enter a sector to explore current retail macro trends and industry dynamics.</p>
-                    </div>
-                </div>
             </div>
         </section>
 
